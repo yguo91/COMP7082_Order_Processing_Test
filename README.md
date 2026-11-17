@@ -44,4 +44,6 @@ See [DEFECTS.md](https://github.com/yguo91/COMP7082_Order_Processing_Test/blob/m
 
 Workflow: `.github/workflows/tests.yml` (runs on push and pull_request).
 
-Successful run: [Tests #1 – 32 passed](https://github.com/yguo91/COMP7082_Order_Processing_Test/actions/runs/44012823757)
+Successful run: [Tests #1 – 32 passed](https://github.com/yguo91/COMP7082_Order_Processing_Test/actions/runs/44012823757).
+
+![GitHub Actions run succeeded](docs/github-actions.png)

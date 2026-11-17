@@ -40,4 +40,4 @@ Use temporary databases and fake payment tokens for unit tests. No real payment 
 
 Workflow: `.github/workflows/tests.yml` (runs on push and pull_request).
 
-Successful run: _paste link/screenshot here after pushing_
+Successful run: [Tests #1 – 32 passed](https://github.com/yguo91/COMP7082_Order_Processing_Test/actions/runs/44012823757)

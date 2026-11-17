@@ -27,6 +27,10 @@ python demo.py
 
 Use temporary databases and fake payment tokens for unit tests. No real payment credentials are required.
 
+## Defect report
+
+See [DEFECTS.md](https://github.com/yguo91/COMP7082_Order_Processing_Test/blob/main/DEFECTS.md) for the list of defects, the fixes and the test results.
+
 ## Assumptions
 
 - `FREESHIP` is valid but does not change the price (no shipping is modelled).

@@ -6,12 +6,12 @@ from models import CartLine
 CENT = Decimal('0.01')
 
 
-def to_money(value):
+def to_money(value):  # Defect 7
     """Round a number/Decimal to cents (half-up) and return a float."""
     return float(Decimal(str(value)).quantize(CENT, rounding=ROUND_HALF_UP))
 
 
-def _valid_quantity(quantity):
+def _valid_quantity(quantity):  # Defect 2
     # bool is a subclass of int, so reject it explicitly.
     return isinstance(quantity, int) and not isinstance(quantity, bool) and quantity > 0
 
@@ -21,7 +21,7 @@ class ShoppingCart:
         self.user_id = user_id
         self.repository = repository
         self.lines = []
-        # Only the code is stored; the discounted total is always derived from
+        # Defect 5: only the code is stored; the discounted total is always derived from
         # the current subtotal so cart edits can never leave a stale discount.
         self.discount_code = None
 
@@ -29,14 +29,14 @@ class ShoppingCart:
         return next((x for x in self.lines if x.sku == sku), None)
 
     def add_item(self, sku, quantity):
-        if not _valid_quantity(quantity):
+        if not _valid_quantity(quantity):  # Defect 2, 15
             return False
         product = self.repository.get_product(sku)
         if not product:
             return False
         existing = self._find(sku)
         wanted = quantity + (existing.quantity if existing else 0)
-        if product.stock < wanted:  # check the combined quantity, not just the increment
+        if product.stock < wanted:  # Defect 3
             return False
         if existing:
             existing.quantity = wanted
@@ -45,7 +45,7 @@ class ShoppingCart:
         return True
 
     def remove_item(self, sku, quantity=None):
-        if quantity is not None and not _valid_quantity(quantity):
+        if quantity is not None and not _valid_quantity(quantity):  # Defect 4
             return False
         line = self._find(sku)
         if line is None:
@@ -56,28 +56,28 @@ class ShoppingCart:
             line.quantity -= quantity
         return True
 
-    def subtotal(self):
+    def subtotal(self):  # Defect 7
         total = sum(Decimal(str(l.unit_price)) * l.quantity for l in self.lines)
         return to_money(total)
 
-    def discount_amount(self):
+    def discount_amount(self):  # Defect 5
         sub = Decimal(str(self.subtotal()))
         if self.discount_code == 'WELCOME10':
             off = sub * Decimal('0.10')
         elif self.discount_code == 'STUDENT20':
             off = sub * Decimal('0.20')
         elif self.discount_code == 'SAVE15':
-            off = min(sub, Decimal('15'))  # never discount below zero
+            off = min(sub, Decimal('15'))  # Defect 6
         else:  # None or FREESHIP (no shipping is modelled, so no price effect)
             off = Decimal('0')
         return to_money(off)
 
-    def total(self):
+    def total(self):  # Defect 5, 7
         return to_money(Decimal(str(self.subtotal())) - Decimal(str(self.discount_amount())))
 
     VALID_CODES = ('WELCOME10', 'STUDENT20', 'SAVE15', 'FREESHIP')
 
-    def apply_discount(self, code):
+    def apply_discount(self, code):  # Defect 5, 15
         """Set the (single) active coupon. Applying again replaces, never stacks."""
         if code not in self.VALID_CODES:
             return False
@@ -86,7 +86,7 @@ class ShoppingCart:
 
     def load(self):
         """Replace cart contents with the saved cart (idempotent)."""
-        self.lines = []
+        self.lines = []  # Defect 8
         for sku, quantity in self.repository.get_saved_cart(self.user_id):
             self.add_item(sku, quantity)
 
